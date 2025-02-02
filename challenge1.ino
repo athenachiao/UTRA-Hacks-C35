@@ -26,6 +26,7 @@ int motor2pin2 = 12;
 
 int servo = 13;
 int pos = 0; 
+float startT2, startT1, t1, t2;
 
 // Stores frequency read by the photodiodes
 int redFrequency = 0;
@@ -42,6 +43,13 @@ int initial_triangle = 1;
 int redColor = 0;
 int greenColor = 0;
 int blueColor = 0;
+
+void crabGrab() {
+  for (pos = 100; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+}
 
 void setup() {
   pinMode(motor1pin1, OUTPUT);
@@ -66,6 +74,7 @@ void setup() {
 
   myservo.attach(13);  // attaches the servo on pin 9 to the servo object
   myservo.write(0);
+  crabGrab();
 }
 
 void crabDrop() {
@@ -74,12 +83,7 @@ void crabDrop() {
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(15);                       // waits 15ms for the servo to reach the position
   }
-
-void crabGrab() {
-  for (pos = 100; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
+}
 
 void stop() {
   digitalWrite(motor2pin1, LOW);
@@ -93,7 +97,7 @@ void stop() {
 void angleturn(int angle) {
   digitalWrite(motor1pin1, LOW);
   digitalWrite(motor1pin2, HIGH);
-  timeturn = angle*(1250/(3.141592/2));
+  float timeturn = angle*(1250/(3.141592/2));
   delay(timeturn); // 1250 = pi/2
   stop();
 }
@@ -204,8 +208,8 @@ void check_colour(){
   else if(blueColor > redColor && blueColor > greenColor){
     Serial.println("Blue");
 }
+}
 
-crabGrab();
 void loop() {
   // Setting RED (R) filtered photodiodes to be read
   digitalWrite(S2,LOW);
@@ -262,7 +266,7 @@ void loop() {
     }
     else{
       initial_triangle = 2;
-      float startT1 = millis();
+      startT1 = millis();
     }
   }
   // inside coloured circle
@@ -272,7 +276,7 @@ void loop() {
       goForward();
     } 
     else{
-      float t1 = millis() - startT1;
+      t1 = millis() - startT1;
       // move back a little?
       // turn 90 degrees counterclockwise
       goBackward();
@@ -280,13 +284,13 @@ void loop() {
       stop();
       turnLeft();
       initial_triangle = 3;
-      float startT2 = millis();
+      startT2 = millis();
     }
   }
   //NOTE: ensure that rover moves back into a colour detecting area
   // inside coloured circle again
   if(initial_triangle == 3){
-    (redFrequency < 450 || greenColor > BLACK_THRESHOLD || blueColor > BLACK_THRESHOLD)  
+    if (redFrequency < 450 || greenColor > BLACK_THRESHOLD || blueColor > BLACK_THRESHOLD) {
       // move forward 
       goForward();
     } 
@@ -299,11 +303,10 @@ void loop() {
       stop();
       angleturn(angle(t1, t2));
       initial_triangle = 4;
+      }
     }
-  }
   else{
     rgb_count();
     crabDrop();
-
   }
 }
