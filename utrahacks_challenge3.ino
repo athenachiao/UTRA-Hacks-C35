@@ -1,21 +1,17 @@
 // TCS230 or TCS3200 pins wiring to Arduino
-//CHALLENGE 3
 #define S0 2
 #define S1 3
 #define S2 4
 #define S3 5
 #define sensorOut 6
+
 //define cardboard colour
-
-
 int ultra_echo = 7;
 int ultra_trig = 8;
-
 int motor1pin1 = 9;
 int motor1pin2 = 10;
 int motor2pin1 = 11;
 int motor2pin2 = 12;
-
 int servo = 13;
 
 String sequence[] = {"Red", "Green", "Blue", "Green", "Blue"};
@@ -28,6 +24,7 @@ String currentColour = "";
 int counterRed = 0;
 int counterBlue = 0;
 int counterGreen = 0;
+int counterBrown = 0;
 
 // Stores the red. green and blue colors
 int redColor = 0;
@@ -53,17 +50,15 @@ void setup() {
   digitalWrite(S0,HIGH);
   digitalWrite(S1,LOW);
 
-    // ultrasensor
+  // ultrasensor
   pinMode(ultra_trig, OUTPUT);
   pinMode(ultra_echo, INPUT);
   
-
-// motor
+  // motor
   pinMode(motor1pin1, OUTPUT);
   pinMode(motor1pin2, OUTPUT);
   pinMode(motor2pin1, OUTPUT);
   pinMode(motor2pin2, OUTPUT);
-
 
   // Begins serial communication
   Serial.begin(9600);
@@ -72,12 +67,10 @@ void setup() {
 void stop() {
   digitalWrite(motor2pin1, LOW);
   digitalWrite(motor2pin2, LOW);
-
   digitalWrite(motor1pin1, LOW);
   digitalWrite(motor1pin2, LOW);
   delay(1000);
 }
-
 void turnRight() {
   // Turns the left wheel
   digitalWrite(motor1pin1, LOW);
@@ -85,14 +78,12 @@ void turnRight() {
   delay(1100);
   stop();
 }
-
 void turnLeft() {
   digitalWrite(motor2pin1, LOW);
   digitalWrite(motor2pin2, HIGH);
   delay(1200);
   stop();
 }
-
 void goBackward() {
   digitalWrite(motor2pin1, HIGH);
   digitalWrite(motor2pin2, LOW);
@@ -101,7 +92,6 @@ void goBackward() {
   digitalWrite(motor1pin2, LOW);
   delay(1000);
 }
-
 void goForward() {
   digitalWrite(motor2pin1, LOW);
   digitalWrite(motor2pin2, HIGH);
@@ -110,7 +100,6 @@ void goForward() {
   digitalWrite(motor1pin2, HIGH);
   delay(200);
 }
-
 void angleturn(int angle) {
   digitalWrite(motor1pin1, LOW);
   digitalWrite(motor1pin2, HIGH);
@@ -118,28 +107,36 @@ void angleturn(int angle) {
   delay(timeturn); // 1250 = pi/2
   stop();
 }
+
 String rgb_count(){
   String detectedColor = "";
-
-  if (redColor > greenColor && redColor > blueColor) {
+  if (greenColor > 400 && greenColor < 600 && blueColor < 650 && blueColor > 510 && redColor < 350 && redColor > 200){
+    detectedColor = "Brown";
+    Serial.println("Brown");
+  }
+  else if (redColor > greenColor && redColor > blueColor) {
     detectedColor = "Red";
+    Serial.println("Red");
   } 
   else if (greenColor > redColor && greenColor > blueColor) {
     detectedColor = "Green";
+    Serial.println("Green");
   } 
   else if (blueColor > redColor && blueColor > greenColor) {
     detectedColor = "Blue";
+    Serial.println("Blue");
   }
 
   if (detectedColor != currentColour) {
     if (detectedColor == "Red") counterRed++;
     if (detectedColor == "Green") counterGreen++;
     if (detectedColor == "Blue") counterBlue++;
+    if (detectedColor == "Brown") counterBrown++;
 
-    if (counterRed >= 3 || counterGreen >= 3 || counterBlue >= 3) {
+    if (counterRed >= 3 || counterGreen >= 3 || counterBlue >= 3 || counterBrown >= 3) {
       currentColour = detectedColor;
       Serial.println("Color change detected: " + currentColour);
-      counterRed = counterGreen = counterBlue = 0;
+      counterRed = counterGreen = counterBlue = counterBrown = 0;
     }
   }
   return currentColour;
@@ -163,11 +160,9 @@ void loop() {
   digitalWrite(ultra_trig, HIGH);
   delayMicroseconds(2);
   digitalWrite(ultra_trig, LOW);
-
   duration = pulseIn(ultra_echo, HIGH);
   distance = (duration*.0343)/2;
   
-
   // Setting RED (R) filtered photodiodes to be read
   digitalWrite(S2,LOW);
   digitalWrite(S3,LOW);
@@ -219,18 +214,15 @@ void loop() {
 
   // if no wall, move forward; else if wall turn right (or left to optimise depending on where start is)
   // maybe add randomly generated code to turn lol
-  if (distance <20){
+    if (distance <20){
     stop();
     goBackward();
     delay(350);
     turnRight();
     goForward();
-
   } else {
     goForward();
   }
-
 }
 
-// TODO: moving.. 
-
+// TODO: 
