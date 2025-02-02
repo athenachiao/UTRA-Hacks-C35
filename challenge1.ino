@@ -45,7 +45,7 @@ int greenColor = 0;
 int blueColor = 0;
 
 void crabGrab() {
-  myservo.writeMicroseconds(4000);
+  myservo.writeMicroseconds(2000);
 }
 
 void setup() {
@@ -70,12 +70,12 @@ void setup() {
   Serial.begin(9600);
 
   myservo.attach(13);  // attaches the servo on pin 13 to the servo object
-  myservo.writeMicroseconds(2000);;
+  myservo.writeMicroseconds(4000);
   crabGrab();
 }
 
 void crabDrop() {
-  myservo.writeMicroseconds(2000);
+  myservo.writeMicroseconds(4000);
 }
 
 void stop() {
