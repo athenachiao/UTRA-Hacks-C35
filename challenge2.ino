@@ -160,8 +160,7 @@ void checkColour() {
         stop();
         delay(50);
       
-        turnLeft();
-        turnLeft();
+        uTurn();
         Serial.println("u-turn!");
     } 
     else if (blueColour > redColour && blueColour > greenColour) {
@@ -262,5 +261,5 @@ void uTurn() {
   delay(50);
   digitalWrite(motor1pin1, HIGH);
   digitalWrite(motor1pin2, LOW);
-  delay(200);
+  delay(1250);
 }
