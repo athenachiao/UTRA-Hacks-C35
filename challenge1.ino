@@ -15,7 +15,7 @@ Servo myservo;
 #define S2 4
 #define S3 5
 #define sensorOut 6
-#define BLACK_THRESHOLD 1000
+#define BLACK_THRESHOLD 2000
 
 
 int motor1pin1 = 9;
@@ -125,7 +125,7 @@ void goForward() {
 
   digitalWrite(motor1pin1, LOW);
   digitalWrite(motor1pin2, HIGH);
-  delay(1000);
+  delay(100);
   }
 
 float angle(float t1, float t2) {
@@ -204,6 +204,9 @@ void check_colour(){
 }
 
 void loop() {
+  if (greenColor > BLACK_THRESHOLD && blueColor > BLACK_THRESHOLD){
+    Serial.println("Black");
+  }
   // Setting RED (R) filtered photodiodes to be read
   digitalWrite(S2,LOW);
   digitalWrite(S3,LOW);
@@ -252,7 +255,7 @@ void loop() {
   // Serial.print(blueColor);
   delay(100);
   if(initial_triangle == 1){
-    if (redFrequency > 450 && greenColor < BLACK_THRESHOLD && blueColor < BLACK_THRESHOLD) {
+    if (redFrequency > 450 && greenColor > BLACK_THRESHOLD && blueColor > BLACK_THRESHOLD) {
       Serial.println("Black color detected!");
       goForward();
       // move forward
@@ -264,7 +267,7 @@ void loop() {
   }
   // inside coloured circle
   if(initial_triangle == 2){
-    if (redFrequency < 450 || greenColor > BLACK_THRESHOLD || blueColor > BLACK_THRESHOLD) {  
+    if (redFrequency < 450 || greenColor < BLACK_THRESHOLD || blueColor < BLACK_THRESHOLD) {  
       // move forward 
       goForward();
     } 
@@ -274,7 +277,6 @@ void loop() {
       // turn 90 degrees counterclockwise
       goBackward();
       delay(500);
-      stop();
       turnLeft();
       initial_triangle = 3;
       startT2 = millis();
@@ -283,7 +285,7 @@ void loop() {
   //NOTE: ensure that rover moves back into a colour detecting area
   // inside coloured circle again
   if(initial_triangle == 3){
-    if (redFrequency < 450 || greenColor > BLACK_THRESHOLD || blueColor > BLACK_THRESHOLD) {
+    if (redFrequency < 450 || greenColor < BLACK_THRESHOLD || blueColor < BLACK_THRESHOLD) {
       // move forward 
       goForward();
     } 
@@ -293,7 +295,6 @@ void loop() {
       // turn 45 degrees counter clockwise
       goBackward();
       delay(500);
-      stop();
       angleturn(angle(t1, t2));
       initial_triangle = 4;
       }
